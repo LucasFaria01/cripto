@@ -1,3 +1,4 @@
+import java.util.Base64;
 import java.util.Scanner;
 
 import javax.crypto.Cipher;
@@ -20,9 +21,12 @@ public class Main {
  * (192 / 8 = 192) 24 caracteres = 192 bits
  * (128 / 8 = 128) 16 caracteres = 128 bits
  */
-        System.out.println("32 caracteres = chave com 256 bits"+ "\n24 caracteres = chave com 192 bits"+ "16 caracteres = chave com 128 bits"+ "\n Infomre uma Chave: ");
+        System.out.println("32 caracteres = chave com 256 bits" + "\n24 caracteres = chave com 192 bits"
+            + "\n16 caracteres = chave com 128 bits" + "\n Informe uma Chave: ");
         chaveSimetrica = sc.nextLine();
-        key = new SecretKeySpec(chaveSimetrica.getBytes(), "AES");
+
+//        key = new SecretKeySpec(chaveSimetrica.getBytes(), "AES");
+        key = new SecretKeySpec(Base64.getDecoder().decode(chaveSimetrica), "AES");
 
         try {
             Cipher cipher = Cipher.getInstance("AES");
@@ -33,12 +37,14 @@ public class Main {
             mensagem = sc.nextLine();
             /* Encripta a Mensagem */
             mensagemEncriptada = cipher.doFinal(mensagem.getBytes());
+
             /* Exibe Mensagem Encriptada */
-            System.out.println(new String("Mensagem Encriptada: " + mensagemEncriptada));
+            final String stringMensagemEncriptada = Base64.getEncoder().encodeToString(mensagemEncriptada);
+            System.out.println("Mensagem Encriptada: " + stringMensagemEncriptada);
             /* Informa ao objeto a ação de desencriptar */
             cipher.init(Cipher.DECRYPT_MODE, key);
             /* Recebe a mensagem encriptada e descripta */
-            mensagemDescriptada = cipher.doFinal(mensagemEncriptada);
+            mensagemDescriptada = cipher.doFinal(Base64.getDecoder().decode(stringMensagemEncriptada));
             /**
              * Converte para a base 64 e amazena a mensagem em uma variavel
              * auxiliar

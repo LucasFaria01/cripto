@@ -9,6 +9,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -17,6 +18,27 @@ import javax.crypto.NoSuchPaddingException;
 
 public class RSA {
 
+    public static void main(String[] args) {
+
+        Scanner teclado = new Scanner(System.in);
+
+        System.out.println("Informe a chave: ");
+        final String texto = teclado.nextLine();
+
+        String encriptado = "";
+        String decriptado = "";
+
+        try {
+            encriptado = encrypt(texto);
+            decriptado = decrypt(encriptado);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        System.out.println(encriptado);
+        System.out.println(decriptado);
+    }
+
     static String kPublic = "";
     static String kPrivate = "";
 
@@ -24,7 +46,8 @@ public class RSA {
 
     }
 
-    public String Encrypt(String plain) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+    public static String encrypt(String plain)
+        throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
         IllegalBlockSizeException, BadPaddingException {
 
         String encrypted;
@@ -51,7 +74,8 @@ public class RSA {
         return encrypted;
     }
 
-    public String Decrypt(String result) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+    public static String decrypt(String result)
+        throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
         IllegalBlockSizeException, BadPaddingException {
 
         byte[] decryptedBytes;
@@ -79,7 +103,7 @@ public class RSA {
         return decrypted;
     }
 
-    public String bytesToString(byte[] b) {
+    public static String bytesToString(byte[] b) {
 
         byte[] b2 = new byte[b.length + 1];
         b2[0] = 1;
@@ -87,7 +111,7 @@ public class RSA {
         return new BigInteger(b2).toString(36);
     }
 
-    public byte[] stringToBytes(String s) {
+    public static byte[] stringToBytes(String s) {
 
         byte[] b2 = new BigInteger(s, 36).toByteArray();
         return Arrays.copyOfRange(b2, 1, b2.length);
