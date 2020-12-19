@@ -1,137 +1,152 @@
-import java.math.BigInteger;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Arrays;
-import java.util.Scanner;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.math.BigInteger;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Scanner;
 
 public class RSA {
-
-//    public static void main(String[] args) {
-//
-//        Scanner teclado = new Scanner(System.in);
-//        System.out.println("Digite um texto a ser encriptado: ");
-//        final String texto = teclado.nextLine();
-//
-//        String textoEncriptado = "";
-//
-//        try {
-//            textoEncriptado = encrypt(texto);
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-//
-//        System.out.println("Texto encriptado: " + textoEncriptado);
-//        System.out.println("Chave pública: " + kPublic);
-//        System.out.println("Chave privada: " + kPrivate);
-//    }
-
-    public static void main(String[] args) {
-
-        Scanner teclado = new Scanner(System.in);
-        System.out.println("Digite o texto encriptado: ");
-        final String encriptado = teclado.nextLine();
-
-        System.out.println("Digite a chave privada: ");
-        final String chavePrivada = teclado.nextLine();
-
-        String textoNormal = "";
-
-        try {
-            textoNormal = decrypt(encriptado, chavePrivada);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-
-        System.out.println(textoNormal);
-    }
+    private static final Scanner teclado = new Scanner(System.in);
 
     static String kPublic = "";
     static String kPrivate = "";
 
-    public RSA() {
+    private static final int RADIX = 36;
 
+    private static final String RSA = "RSA";
+
+    private static final int TAMANHO_DA_CHAVE = 1024;
+
+    public static void main(String[] args) {
+
+        System.out.println("Entendemos que você já possui a sua chave super mega hiper secreta, o que pretende fazer com ela?");
+        System.out.println("1. Encriptar \n2. Decriptar");
+        final int decisao = teclado.nextInt();
+
+        if (decisao == 1) {
+            System.out.println("Digite a sua chave super mega hiper secreta a ser encriptada: ");
+            final String texto = teclado.next();
+
+            String textoEncriptado = "";
+
+            try {
+                textoEncriptado = encriptar(texto);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
+            System.out.println("Texto encriptado: " + textoEncriptado);
+            System.out.println("Chave de criptografia pública: " + kPublic);
+            System.out.println("Chave de criptografia privada: " + kPrivate);
+
+        } else if (decisao == 2) {
+
+            System.out.println("Digite o texto encriptado: ");
+            final String encriptado = teclado.next();
+
+            System.out.println("Digite a chave de criptografia privada: ");
+            final String chavePrivada = teclado.next();
+
+            String textoNormal = "";
+
+            try {
+                textoNormal = decriptar(encriptado, chavePrivada);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
+            System.out.println(textoNormal);
+        } else {
+            System.out.println("eu nem te dei essa opção...");
+        }
     }
 
-    public static String encrypt(String plain)
-        throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-        IllegalBlockSizeException, BadPaddingException {
+    public static String encriptar(String texto)
+            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+            IllegalBlockSizeException, BadPaddingException {
 
-        String encrypted;
-        byte[] encryptedBytes;
+        //Recebe um algoritmo para gerar uma instância com o par de chaves para criptografar
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(RSA);
 
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(1024);
+        //Iniciar a chave para que tenha um tamanho específico (número de bits)
+        kpg.initialize(TAMANHO_DA_CHAVE);
+
+        //Devolve o objeto contendo o par de chaves
         KeyPair kp = kpg.genKeyPair();
 
-        PublicKey publicKey = kp.getPublic();
-        PrivateKey privateKey = kp.getPrivate();
+        //Pega o objeto que representa a chave pública
+        PublicKey publicKeyGerada = kp.getPublic();
 
-        byte[] publicKeyBytes = publicKey.getEncoded();
-        byte[] privateKeyBytes = privateKey.getEncoded();
+        //Pega o objeto que representa a chave privada
+        PrivateKey privateKeyGerada = kp.getPrivate();
 
-        kPublic = bytesToString(publicKeyBytes);
-        kPrivate = bytesToString(privateKeyBytes);
+        //Pega o valor do código da chave pública (array de bytes)
+        byte[] bytesChavePublica = publicKeyGerada.getEncoded();
 
-        Cipher cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        encryptedBytes = cipher.doFinal(plain.getBytes());
+        //Pega o valor do código da chave privada (array de bytes)
+        byte[] bytesChavePrivada = privateKeyGerada.getEncoded();
 
-        encrypted = bytesToString(encryptedBytes);
-        return encrypted;
+        kPublic = bytesToString(bytesChavePublica);
+        kPrivate = bytesToString(bytesChavePrivada);
+
+        //Inicializa um objeto cipher poder criptografar utilizando o algortimo RSA
+        Cipher cipher = Cipher.getInstance(RSA);
+
+        //Prepara o cipher para encriptar através da chave informada
+        cipher.init(Cipher.ENCRYPT_MODE, publicKeyGerada);
+
+        //Vai finalmente executar o algoritmo informado, criptografando o texto através da chave
+        //Este método recebe um array de bytes, então para isso utilizamos o getBytes do texto passado por parâmetro
+        final byte[] bytesEncriptados = cipher.doFinal(texto.getBytes());
+
+        return bytesToString(bytesEncriptados);
     }
 
-    public static String decrypt(final String textoEncriptado, final String chavePrivada)
-        throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-        IllegalBlockSizeException, BadPaddingException {
+    public static String decriptar(final String textoEncriptado, final String chavePrivada)
+            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+            IllegalBlockSizeException, BadPaddingException {
 
-        byte[] decryptedBytes;
+        byte[] bytesChavePrivada = stringToBytes(chavePrivada);
 
-        byte[] byteKeyPrivate = stringToBytes(chavePrivada);
+        //Instancia um objeto KeyFactory aplicando o algoritmo RSA, retornando um fabricador de chaves
+        KeyFactory kf = KeyFactory.getInstance(RSA);
 
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-
+        //Cria um objeto nulo que representa a chave privada
         PrivateKey privateKey = null;
 
         try {
-
-            privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(byteKeyPrivate));
+            //Gera um objeto PrivateKey através do fabricador anterior, recebendo o array de bytes da chavePrivada
+            //Vai instanciar um novo objeto, contendo os bytes da chave privada no formato PKCS # 8
+            privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(bytesChavePrivada));
 
         } catch (InvalidKeySpecException e) {
             e.printStackTrace();
         }
 
-        String decrypted;
+        //Inicializa um objeto cipher poder criptografar utilizando o algortimo RSA
+        Cipher cipher = Cipher.getInstance(RSA);
 
-        Cipher cipher = Cipher.getInstance("RSA");
+        //Prepara o cipher para decriptar através da chave informada
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        decryptedBytes = cipher.doFinal(stringToBytes(textoEncriptado));
-        decrypted = new String(decryptedBytes);
-        return decrypted;
+
+        //Vai finalmente executar o algoritmo informado, criptografando o texto através da chave
+        //Este método recebe um array de bytes, então para isso utilizamos o getBytes do texto passado por parâmetro
+        byte[] bytesDecriptados = cipher.doFinal(stringToBytes(textoEncriptado));
+
+        //Vai gerar uma string a partir dos bytes decriptados
+        return new String(bytesDecriptados);
     }
 
     public static String bytesToString(byte[] b) {
-
-        byte[] b2 = new byte[b.length + 1];
-        b2[0] = 1;
-        System.arraycopy(b, 0, b2, 1, b.length);
-        return new BigInteger(b2).toString(36);
+        return Base64.getEncoder().encodeToString(b);
     }
 
     public static byte[] stringToBytes(String s) {
-
-        byte[] b2 = new BigInteger(s, 36).toByteArray();
-        return Arrays.copyOfRange(b2, 1, b2.length);
+        return Base64.getDecoder().decode(s);
     }
 }
