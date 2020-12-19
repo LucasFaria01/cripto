@@ -7,54 +7,80 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class Main {
 
-    private static String chaveSimetrica;
-    private static String mensagem;
     private static SecretKey key;
-    private static byte[] mensagemEncriptada;
-    private static byte[] mensagemDescriptada;
-    private static Scanner sc = new Scanner(System.in);
+    private static final Scanner teclado = new Scanner(System.in);
 
-    public static void main(String args[]) {
-/**
- * Solicita ao usuário que informe uma chave com caracteres:
- * (256 / 8 = 32) 32 caracteres = 256 bits
- * (192 / 8 = 192) 24 caracteres = 192 bits
- * (128 / 8 = 128) 16 caracteres = 128 bits
- */
-        System.out.println("32 caracteres = chave com 256 bits" + "\n24 caracteres = chave com 192 bits"
-            + "\n16 caracteres = chave com 128 bits" + "\n Informe uma Chave: ");
-        chaveSimetrica = sc.nextLine();
+    public static void main(String[] args) {
 
-//        key = new SecretKeySpec(chaveSimetrica.getBytes(), "AES");
+        System.out.println("1-Encriptar \n2-Decriptar");
+        final int decisao = teclado.nextInt();
+
+        if(decisao == 1) {
+
+            System.out.println("Informe a chave: ");
+            String chave = new Scanner(System.in).nextLine();
+
+            System.out.println("Informe o texto a ser encriptado: ");
+            String texto = new Scanner(System.in).nextLine();
+
+            final String textoEncriptado = encriptar(chave, texto);
+
+            System.out.println("Texto encriptado: " + textoEncriptado);
+        } else if(decisao == 2) {
+
+            System.out.println("Informe a chave: ");
+            final String chave = new Scanner(System.in).nextLine();
+
+            System.out.println("Informe o texto a ser decriptado: ");
+            final String texto = new Scanner(System.in).nextLine();
+
+            final String textoDecriptado = decriptar(chave, texto);
+
+            System.out.println("Texto decriptado: " + textoDecriptado);
+        } else {
+            System.out.println("eu nem te dei essa opção...");
+        }
+    }
+
+
+    public static String encriptar(final String chaveSimetrica, final String textoPlano) {
+
         key = new SecretKeySpec(Base64.getDecoder().decode(chaveSimetrica), "AES");
 
+        String textoEncriptado = "";
+
         try {
+
             Cipher cipher = Cipher.getInstance("AES");
-
             cipher.init(Cipher.ENCRYPT_MODE, key);
-            /* Solicita ao usuŕio que informe sua mensagem a ser encriptada */
-            System.out.println("Informe sua mensagem a ser encriptada: ");
-            mensagem = sc.nextLine();
-            /* Encripta a Mensagem */
-            mensagemEncriptada = cipher.doFinal(mensagem.getBytes());
+            final byte[] mensagemEncriptada = cipher.doFinal(textoPlano.getBytes());
 
-            /* Exibe Mensagem Encriptada */
-            final String stringMensagemEncriptada = Base64.getEncoder().encodeToString(mensagemEncriptada);
-            System.out.println("Mensagem Encriptada: " + stringMensagemEncriptada);
-            /* Informa ao objeto a ação de desencriptar */
-            cipher.init(Cipher.DECRYPT_MODE, key);
-            /* Recebe a mensagem encriptada e descripta */
-            mensagemDescriptada = cipher.doFinal(Base64.getDecoder().decode(stringMensagemEncriptada));
-            /**
-             * Converte para a base 64 e amazena a mensagem em uma variavel
-             * auxiliar
-             */
-            String mensagemOriginal = new String(mensagemDescriptada);
+            textoEncriptado = Base64.getEncoder().encodeToString(mensagemEncriptada);
 
-            /* Exibe Mensagem Descriptada */
-            System.out.println("Mensagem Descriptada: " + mensagemOriginal);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
+
+        return textoEncriptado;
+    }
+
+    public static String decriptar(final String chaveSimetrica, final String textoEncriptado) {
+
+        key = new SecretKeySpec(Base64.getDecoder().decode(chaveSimetrica), "AES");
+
+        String textoDecriptado = "";
+
+        try {
+
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            final byte[] mensagemDescriptada = cipher.doFinal(Base64.getDecoder().decode(textoEncriptado));
+            textoDecriptado = new String(mensagemDescriptada);
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        return textoDecriptado;
     }
 }
