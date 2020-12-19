@@ -18,6 +18,9 @@ import javax.crypto.NoSuchPaddingException;
 
 public class RSA {
 
+    static String kPublic = "";
+    static String kPrivate = "";
+
 //    public static void main(String[] args) {
 //
 //        Scanner teclado = new Scanner(System.in);
@@ -57,19 +60,9 @@ public class RSA {
         System.out.println(textoNormal);
     }
 
-    static String kPublic = "";
-    static String kPrivate = "";
-
-    public RSA() {
-
-    }
-
     public static String encrypt(String plain)
         throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
         IllegalBlockSizeException, BadPaddingException {
-
-        String encrypted;
-        byte[] encryptedBytes;
 
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
         kpg.initialize(1024);
@@ -86,9 +79,9 @@ public class RSA {
 
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        encryptedBytes = cipher.doFinal(plain.getBytes());
+        final byte[] encryptedBytes = cipher.doFinal(plain.getBytes());
 
-        encrypted = bytesToString(encryptedBytes);
+        final String encrypted = bytesToString(encryptedBytes);
         return encrypted;
     }
 
