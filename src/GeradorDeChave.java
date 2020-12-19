@@ -10,7 +10,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class Arthur {
+public class GeradorDeChave {
 
     public static void main(String[] args)
         throws NoSuchAlgorithmException, InvalidKeySpecException {
