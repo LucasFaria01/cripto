@@ -19,23 +19,23 @@ public class Main {
 
         // A chave simétrica vai estar encodada em Base64, e é usado para gerar uma Key para o algoritmo de
         // criptografia AES
-        final SecretKey key = new SecretKeySpec(Base64.getDecoder().decode(chave), "AES");
+        final SecretKey chaveSimetrica = new SecretKeySpec(Base64.getDecoder().decode(chave), "AES");
 
         if(decisao == 1) {
 
-            System.out.println("Informe o texto a ser encriptado: ");
-            String texto = new Scanner(System.in).nextLine();
+            System.out.println("Informe o texto plano a ser encriptado: ");
+            String textoPlano = new Scanner(System.in).nextLine();
 
-            final String textoEncriptado = encriptar(key, texto);
+            final String textoEncriptado = encriptar(chaveSimetrica, textoPlano);
 
             System.out.println("Texto encriptado: " + textoEncriptado);
 
         } else if(decisao == 2) {
 
-            System.out.println("Informe o texto a ser decriptado: ");
-            final String texto = new Scanner(System.in).nextLine();
+            System.out.println("Informe o texto encriptado a ser decriptado: ");
+            final String textoEncriptado = new Scanner(System.in).nextLine();
 
-            final String textoDecriptado = decriptar(key, texto);
+            final String textoDecriptado = decriptar(chaveSimetrica, textoEncriptado);
 
             System.out.println("Texto decriptado: " + textoDecriptado);
         } else {

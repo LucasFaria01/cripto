@@ -16,8 +16,6 @@ public class RSA {
     static String kPublic = "";
     static String kPrivate = "";
 
-    private static final int RADIX = 36;
-
     private static final String RSA = "RSA";
 
     private static final int TAMANHO_DA_CHAVE = 1024;
