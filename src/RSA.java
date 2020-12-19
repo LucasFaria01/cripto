@@ -18,25 +18,43 @@ import javax.crypto.NoSuchPaddingException;
 
 public class RSA {
 
+//    public static void main(String[] args) {
+//
+//        Scanner teclado = new Scanner(System.in);
+//        System.out.println("Digite um texto a ser encriptado: ");
+//        final String texto = teclado.nextLine();
+//
+//        String textoEncriptado = "";
+//
+//        try {
+//            textoEncriptado = encrypt(texto);
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//
+//        System.out.println("Texto encriptado: " + textoEncriptado);
+//        System.out.println("Chave pública: " + kPublic);
+//        System.out.println("Chave privada: " + kPrivate);
+//    }
+
     public static void main(String[] args) {
 
         Scanner teclado = new Scanner(System.in);
+        System.out.println("Digite o texto encriptado: ");
+        final String encriptado = teclado.nextLine();
 
-        System.out.println("Informe a chave: ");
-        final String texto = teclado.nextLine();
+        System.out.println("Digite a chave privada: ");
+        final String chavePrivada = teclado.nextLine();
 
-        String encriptado = "";
-        String decriptado = "";
+        String textoNormal = "";
 
         try {
-            encriptado = encrypt(texto);
-            decriptado = decrypt(encriptado);
+            textoNormal = decrypt(encriptado, chavePrivada);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
-        System.out.println(encriptado);
-        System.out.println(decriptado);
+        System.out.println(textoNormal);
     }
 
     static String kPublic = "";
@@ -74,13 +92,13 @@ public class RSA {
         return encrypted;
     }
 
-    public static String decrypt(String result)
+    public static String decrypt(final String textoEncriptado, final String chavePrivada)
         throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
         IllegalBlockSizeException, BadPaddingException {
 
         byte[] decryptedBytes;
 
-        byte[] byteKeyPrivate = stringToBytes(kPrivate);
+        byte[] byteKeyPrivate = stringToBytes(chavePrivada);
 
         KeyFactory kf = KeyFactory.getInstance("RSA");
 
@@ -98,7 +116,7 @@ public class RSA {
 
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        decryptedBytes = cipher.doFinal(stringToBytes(result));
+        decryptedBytes = cipher.doFinal(stringToBytes(textoEncriptado));
         decrypted = new String(decryptedBytes);
         return decrypted;
     }
